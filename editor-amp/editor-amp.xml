@@ -1,0 +1,22 @@
+<?xml version="1.0" ?>
+<extension version="2.5" type="plugin" group="jce" method="upgrade">
+	<name>PLG_JCE_EDITOR_AMP</name>
+	<version>1.0.0</version>
+	<creationDate>June 2018</creationDate>
+	<author>Ryan Demmer</author>
+	<authorEmail>info@joomlacontenteditor.net</authorEmail>
+	<authorUrl>https://www.joomlacontenteditor.net/</authorUrl>
+	<copyright>Copyright (C) 2006 - 2017 Ryan Demmer. All rights reserved</copyright>
+	<license>GNU/GPL Version 2 - http://www.gnu.org/licenses/gpl-2.0.html</license>
+	<description>PLG_JCE_EDITOR_AMP_XML_DESC</description>
+	<icon></icon>
+	<files folder="plugins/jce/editor-amp">
+		<file plugin="editor-amp">editor_plugin.js</file>
+	</files>
+	<params group="standard"></params>
+	<languages folder="administrator/language/en-GB">
+		<language tag="en-GB">en-GB.plg_jce_editor-amp.ini</language>
+		<language tag="en-GB">en-GB.plg_jce_editor-amp.sys.ini</language>
+	</languages>
+	<help></help>
+</extension>
