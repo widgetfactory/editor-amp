@@ -17,7 +17,7 @@
     }
 
     // list of supported AMP tags
-    var tags = ['img', 'audio', 'video', 'iframe'];
+    var ampTags = ['amp-img', 'amp-video', 'amp-ad', 'amp-fit-text', 'amp-font', 'amp-carousel', 'amp-anim', 'amp-youtube', 'amp-twitter', 'amp-vine', 'amp-instagram', 'amp-iframe', 'amp-pixel', 'amp-audio', 'amp-lightbox', 'amp-image-lightbox'];
 
     tinymce.create('tinymce.plugins.AmpPlugin', {
         init: function (ed, url) {
@@ -26,39 +26,48 @@
 
             ed.onPreInit.add(function () {
                 var shortEnded = ed.schema.getShortEndedElements();
-                
-                ed.onBeforeSetContent.add(function (ed, o) {
 
-                    o.content = o.content.replace(/<amp\-([a-z0-9]+)([^>]+)>([\s\S]*)<\/amp\-\1>/gi, function(match, tag, attribs, content) {
-                        content = content || '&nbsp;';
+                each(ampTags, function (tag) {
+                    ed.schema.addValidElements('+' + tag + '[*]');
+                });
 
-                        ed.schema.addCustomElements('amp-' + tag);
-                        
-                        if (tags.indexOf(tag) === -1) {
-                            return match;
-                        }
+                ed.parser.addNodeFilter('amp-img', function (nodes, name) {
+                    var node;
 
-                        var html = '<' + tag + ' data-mce-amp="' + tag + '"' + attribs;
+                    for (var i = 0, len = nodes.length; i < len; i++) {
+                        node = nodes[i];
 
-                        if (shortEnded[tag]) {
-                            return html + '/>';
-                        }
+                        var n = new Node('img', 1);
 
-                        return html + '>' + content + '</' + tag + '>';
-                    });
+                        each(node.attributes, function (at) {
+                            if (!ed.schema.isValid('img', at.name)) {
+                                at.name = 'data-amp-' + at.name;
+                            }
+
+                            n.attr(at.name, at.value);
+                        });
+
+                        n.attr('data-mce-amp', 'img');
+
+                        node.replace(n);
+                    }
                 });
 
                 ed.serializer.addAttributeFilter('data-mce-amp', function (nodes, name) {
                     var node, tag;
-                    
+
                     for (var i = 0, len = nodes.length; i < len; i++) {
                         node = nodes[i], tag = node.attr('data-mce-amp');
 
-                        var n = new Node('amp-' + tag, 1), attribs = {};
+                        var n = new Node('amp-' + tag, 1);
 
                         each(node.attributes, function (at) {
                             if (at.name.indexOf('data-mce-') !== -1) {
                                 return;
+                            }
+
+                            if (at.name.indexOf('data-amp-') !== -1) {
+                                at.name = at.name.replace('data-amp-', '');
                             }
 
                             n.attr(at.name, "" + at.value);
