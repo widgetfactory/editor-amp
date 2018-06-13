@@ -86,6 +86,9 @@
                     for (var i = 0, len = nodes.length; i < len; i++) {
                         node = nodes[i], tag = node.attr('data-mce-amp');
 
+                        // remove marker attribute
+                        node.attr('data-mce-amp', null);
+
                         if (node.name !== "img") {
                             continue;
                         }
@@ -93,10 +96,6 @@
                         var n = new Node('amp-' + tag, 1);
 
                         each(node.attributes, function (at) {
-                            if (at.name.indexOf('data-mce-') !== -1) {
-                                return;
-                            }
-
                             if (at.name.indexOf('data-amp-') !== -1) {
                                 at.name = at.name.replace('data-amp-', '');
                             }
