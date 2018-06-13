@@ -25,10 +25,33 @@
             this.editor = ed;
 
             ed.onPreInit.add(function () {
-                var shortEnded = ed.schema.getShortEndedElements();
+
+                // pad amp tags so they are not removed....
+                ed.onBeforeSetContent.add(function(ed, o) {
+                    o.content = o.content.replace(/><\/amp-([^>]+?)>/gi, '>&nbsp;</amp-$1>');
+                });
 
                 each(ampTags, function (tag) {
-                    ed.schema.addValidElements('+' + tag + '[*]');
+                    ed.schema.addValidElements('+' + tag + '[!data-mce-amp="1"|*]');
+
+                    var name = tag.replace('amp-', '');
+
+                    // add span
+                    ed.schema.children['span'][tag] = {};
+
+                    // add anchor
+                    if (ed.schema.children['a'][name]) {
+                        ed.schema.children['a'][tag] = {};
+                    }
+
+                    // add div
+                    ed.schema.children['div'][tag] = {};
+
+                    each(ed.schema.getTextBlockElements(), function(data, nodeName) {                        
+                        if (ed.schema.children[nodeName] && ed.schema.children[nodeName][name]) {
+                            ed.schema.children[nodeName][tag] = {};
+                        }
+                    });
                 });
 
                 ed.parser.addNodeFilter('amp-img', function (nodes, name) {
@@ -40,6 +63,10 @@
                         var n = new Node('img', 1);
 
                         each(node.attributes, function (at) {
+                            if (at.name.indexOf('data-mce') !== -1) {
+                                return true;
+                            }
+                            
                             if (!ed.schema.isValid('img', at.name)) {
                                 at.name = 'data-amp-' + at.name;
                             }
@@ -58,6 +85,10 @@
 
                     for (var i = 0, len = nodes.length; i < len; i++) {
                         node = nodes[i], tag = node.attr('data-mce-amp');
+
+                        if (node.name !== "img") {
+                            continue;
+                        }
 
                         var n = new Node('amp-' + tag, 1);
 
